@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="./css/iconfont.css">
     <link rel="stylesheet" href="./css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
-    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
-    <script src="./libs/jquery.twbsPagination.js"></script>
-    <script></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
 </head>
@@ -72,40 +69,9 @@
                 </tbody>
             </table>
             <div class="row text-center">
-                <!-- 分页插件的结构 -->
-                <ul id="pagination-demo" class="pagination-sm"></ul>
-                <p>没有数据</p>
             </div>
         </div>
     </div>
-
-    <!-- 文章类别模板 -->
-    <script id="art_cate_temp" type="text/html">
-        <option value="">所有分类</option>
-        {{each data v}}
-        <option value="{{v.id}}">{{v.name}}</option>
-        {{/each}}
-    </script>
-
-    <!-- 文章列表模板 -->
-    <script id="arti_list" type="text/html">
-        {{each data.data v}}
-        <tr>
-            <td>{{v.title}}</td>
-            <td>{{v.author}}</td>
-            <td>{{v.category}}</td>
-            <td class="text-center">{{v.date}}</td>
-            <td class="text-center">{{v.state}}</td>
-            <td class="text-center">
-                <a href="article_edit.html?id={{v.id}}" class="btn btn-default btn-xs">编辑</a>
-                <a href="javascript:void(0);" data-id="{{v.id}}" class="btn btn-danger btn-xs delete">删除</a>
-            </td>
-        </tr>
-        {{/each}}
-    </script>
-
-    <script src="./libs/http.js"></script>
-    <script src="./js/article_list.js"></script>
 </body>
 
 </html>

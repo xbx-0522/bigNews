@@ -1,8 +1,6 @@
-//使用一个沙箱模式
-;(function(w){
-    //声明一个局部变量,记录基地址
+/* 沙箱模式 */
+(function(w){
     var baseURL = 'http://localhost:8080/api/v1'
-    //声明一个对象BigNew,用来记录当前这个项目中所有需要用到的接口地址,
     var BigNew = {
         baseURL:baseURL,//基地址
         user_login:      baseURL + '/admin/user/login',//用户登录
@@ -27,5 +25,4 @@
 
     //暴露接口
     w.BigNew = BigNew;
-
 }(window));
