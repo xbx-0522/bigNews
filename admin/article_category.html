@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>文章列表</title>
+    <title>文章类别</title>
     <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/iconfont.css">
@@ -43,13 +43,178 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
-                                data-target="#myModal">新增分类</a>
+                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal" data-target="#myModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+
+    <!-- bootstrap的模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">New message</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <!-- 隐藏域: 是用来保存 编辑的文章类别的 id的 -->
+                        <input type="hidden" name="id" id="categoryId">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称:</label>
+                            <input type="text" name="name" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类别名:</label>
+                            <input name="slug" class="form-control" id="message-text"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnCancel" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" id="btnAddOrEdit" class="btn btn-primary">Send message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 准备一个模板 -->
+    <!-- 补充:可以给模板引擎中遍历出来的项取一个别名 -->
+    <script src="./libs/http.js"></script>
+    <script id="category_temp" type="text/html">
+        {{each data v}}
+        <tr>
+            <td>{{v.name}}</td>
+            <td>{{v.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:void(0)" data-id="{{v.id}}" data-toggle="modal" data-target="#myModal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" data-id="{{v.id}}" class="btn btn-danger btn-xs btn-delete">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        $(function() {
+            function getData() {
+                $.ajax({
+                    type: 'get',
+                    url: BigNew.category_list,
+                    success: function(backData) {
+                        console.log(backData);
+                        if (backData.code == 200) {
+                            var resHtml = template('category_temp', backData);
+                            $('tbody').html(resHtml);
+                        }
+                    }
+                })
+            }
+            getData();
+
+            //判断是新增还是编辑
+            //利用show.bs.modal事件实现，通过relatedTarget属性进行访问
+            $('#myModal').on('show.bs.modal', function(e) {
+                if (e.relatedTarget === $('#xinzengfenlei')[0]) {
+                    $('#myModalLabel').text('新增分类');
+                    $('#btnAddOrEdit').text('新增').addClass('btn-primary').removeClass('btn-success');
+
+                } else {
+                    $('#myModalLabel').text('编辑分类');
+                    $('#btnAddOrEdit').text('编辑').addClass('btn-success').removeClass('btn-primary');
+                    $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text());
+                    $('#message-text').val($(e.relatedTarget).parent().prev().text())
+                    $('#categoryId').val($(e.relatedTarget).attr('data-id'))
+
+                }
+            })
+
+            //给模态框的新增/编辑添加点击事件
+            $('#btnAddOrEdit').on('click', function() {
+                if ($(this).hasClass('btn-primary')) {
+                    var categoryName = $('#recipient-name').val().trim();
+                    var categorySlug = $('#message-text').val().trim();
+                    if (categorySlug == "" || categoryName == "") {
+                        alert('不能为空！');
+                        return;
+                    }
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_add,
+                        data: {
+                            name: categoryName,
+                            slug: categorySlug,
+                        },
+                        success: function(backData) {
+                            if (backData.code == 201) {
+                                alert('新增成功！');
+                                getData();
+                                $('#myModal').modal('hide');
+                                $('#recipient-name').val('');
+                                $('#message-text').val('');
+
+                            }
+                        }
+                    })
+                } else {
+                    // var categoryName = $('#recipient-name').val().trim();
+                    // var categorySlug = $('#message-text').val().trim();
+                    // var categoryId = $('#categoryId').val().trim();
+                    var data = $('#myModal form').serialize();
+
+
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_edit,
+                        // data: {
+                        //     id: categoryId,
+                        //     name: categoryName,
+                        //     slug: categorySlug,
+                        // },
+                        data: data,
+                        success: function(backData) {
+                            console.log(backData);
+                            if (backData.code == 200) {
+                                getData();
+                                $('#myModal').modal('hide');
+                                alert('编辑成功！');
+
+                            }
+                        }
+                    })
+
+                }
+            })
+
+
+            //删除事件
+            $('tbody').on('click', '.btn-delete', function() {
+                    if (confirm('你确定要删除吗？')) {
+                        var categoryId = $(this).attr('data-id');
+                        $.ajax({
+                            type: 'post',
+                            url: BigNew.category_delete,
+                            data: {
+                                id: categoryId,
+                            },
+                            success: function(backData) {
+                                if (backData.code == 204) {
+                                    alert('删除成功！');
+                                    getData();
+                                }
+                            }
+                        })
+                    }
+                })
+                //设置取消按钮事件
+            $('#btnCancel').on('click', function() {
+                $('#myModal form')[0].reset();
+            })
+
+        })
+    </script>
+</body>
 
 </html>

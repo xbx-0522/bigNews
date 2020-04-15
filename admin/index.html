@@ -40,7 +40,7 @@
                     <b class="iconfont icon-arrowdownl"></b>
                 </a>
             </div>
-            
+
             <ul class="level02">
                 <!-- 左侧 文章列表 -->
                 <li><a href="./article_list.html" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
@@ -82,7 +82,7 @@
     <script src="./libs/http.js"></script>
     <script>
         //入口函数
-        $(function () {
+        $(function() {
             //一:一进到后台首页,就应该获取登录的管理员的个人信息,显示在页面上. 
             // //用原生js发送ajax请求.
             // //如何把token带过去?设置请求头 
@@ -102,18 +102,18 @@
             $.ajax({
                 type: 'get',
                 // url: 'http://localhost:8080/api/v1/admin/user/info',
-                url:BigNew.user_info, //使用的是http.js中的接口地址
+                url: BigNew.user_info, //使用的是http.js中的接口地址
                 //设置请求头(键,值)
                 // headers: {
                 //     'Authorization': localStorage.getItem('token')
                 // },
-                success: function (backData) {
-                    console.log(backData);
+                success: function(backData) {
+                    // console.log(backData);
                     if (backData.code == 200) {
                         //1.2 个人信息显示在页面上. 
                         $('.user_info>span>i').text(backData.data.nickname);
-                        $('.user_info>img').attr('src',backData.data.userPic);
-                        $('.user_center_link>img').attr('src',backData.data.userPic);
+                        $('.user_info>img').attr('src', backData.data.userPic);
+                        $('.user_center_link>img').attr('src', backData.data.userPic);
                     }
                 }
             });
@@ -131,10 +131,10 @@
 
             //二:登出系统
             //2.1 给登出按钮设置一个点击事件.
-            $('.logout').on('click',function(e){
+            $('.logout').on('click', function(e) {
                 //阻止a标签的默认跳转
                 e.preventDefault();
-                if(confirm('你确定要退出吗?')){
+                if (confirm('你确定要退出吗?')) {
                     //删除token
                     localStorage.removeItem('token');
                     //跳转到登录页
@@ -143,7 +143,22 @@
             })
 
 
-            //$('body').empty();
+            //$('body').empty();b
+            //三.左侧一级菜单栏设置点击事件
+            $('div.level01').on('click', function() {
+                $(this).addClass('active').siblings().removeClass('active');
+                if ($(this).index() == 1) {
+                    $('ul.level02').slideToggle();
+                    console.log($(this));
+                    $(this).find('b').toggleClass('rotate0');
+                    $('ul.level02>li:eq(0)>a')[0].click();
+                }
+            })
+
+            //四.左侧的文章管理下面的下一级菜单栏
+            $('ul.level02>li').on('click', function() {
+                $(this).addClass('active').siblings('li').removeClass('active');
+            })
 
 
         })
